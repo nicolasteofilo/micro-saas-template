@@ -1,8 +1,6 @@
-"use client";
-
 import { AuthForm } from "./_components/auth-form";
 
-export default function AuthPage() {
+export default async function AuthPage() {
   return (
     <div>
       <AuthForm />
