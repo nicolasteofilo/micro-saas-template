@@ -1,7 +1,9 @@
+import { AppPage } from '../_components/page'
+
 export default async function Settings() {
   return (
-    <main>
+    <AppPage title="Configurações" path="/settings">
       <h1>Settings</h1>
-    </main>
+    </AppPage>
   )
 }

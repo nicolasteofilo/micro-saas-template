@@ -1,4 +1,10 @@
 'use client'
+import { PropsWithChildren } from 'react'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+import { Home, LogOut, Rocket, Settings } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 
 import { Separator } from '@/components/ui/separator'
@@ -8,29 +14,18 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar'
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-} from '@/components/ui/breadcrumb'
-import { Home, LogOut, Rocket, Settings } from 'lucide-react'
-import { PropsWithChildren } from 'react'
-import { getInitials } from './utils/get-initials'
+import { UserDropdown } from './_components/user-dropdown'
+import { getInitials } from './_utils/get-initials'
 
 import { Logo } from '@/components/logo'
 import { SignOut } from '@/lib/auth-action'
 import { cn } from '@/lib/utils'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { UserDropdown } from './_components/user-dropdown'
 
 const data = {
   navMain: [
@@ -64,19 +59,9 @@ const dataUserDropdown = {
 
 export default function Layout({ children }: PropsWithChildren) {
   const session = useSession().data
-  const userName = session?.user?.name || ''
-  const userEmail = session?.user?.email || ''
-  const userImage = session?.user?.image || ''
-  const initials = getInitials(userName)
+  const initials = getInitials(session?.user?.name || '')
 
   const pathname = usePathname()
-  const currentPageName = data.navMain.filter(
-    (item) => item.url === pathname,
-  )[0].title
-
-  const currentPageLink = data.navMain.filter(
-    (item) => item.url === pathname,
-  )[0].url
 
   return (
     <SidebarProvider
@@ -117,35 +102,14 @@ export default function Layout({ children }: PropsWithChildren) {
         <SidebarFooter>
           <Separator className="tex" />
           <UserDropdown
-            userImage={userImage}
-            userName={userName}
-            userEmail={userEmail}
+            user={session?.user}
             initials={initials}
             data={dataUserDropdown}
           />
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4 justify-between w-full">
-            <div className="flex items-center">
-              <SidebarTrigger className="-ml-1 mr-3" />
-              <Separator orientation="vertical" className="-mr-2.5 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <Link href={currentPageLink}>{currentPageName}</Link>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-
-            <div>Actions</div>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col pl-[18px]">{children}</div>
-      </SidebarInset>
+      {children}
     </SidebarProvider>
   )
 }

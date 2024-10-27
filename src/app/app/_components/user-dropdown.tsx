@@ -7,11 +7,10 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { ChevronsUpDown } from 'lucide-react'
+import { Session } from 'next-auth'
 
 interface UserDropdownProps {
-  userImage: string
-  userName: string
-  userEmail: string
+  user: Session['user']
   initials: string
 
   data: {
@@ -23,13 +22,9 @@ interface UserDropdownProps {
   }
 }
 
-export function UserDropdown({
-  userEmail,
-  userName,
-  userImage,
-  initials,
-  data,
-}: UserDropdownProps) {
+export function UserDropdown({ user, data, initials }: UserDropdownProps) {
+  if (!user) return null
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="hover:bg-secondary">
@@ -38,12 +33,12 @@ export function UserDropdown({
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={userImage} alt={userName} />
+            <AvatarImage src={user.image!} alt={user.name!} />
             <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{userName}</span>
-            <span className="truncate text-xs">{userEmail}</span>
+            <span className="truncate font-semibold">{user.name!}</span>
+            <span className="truncate text-xs">{user.email!}</span>
           </div>
           <ChevronsUpDown className="ml-auto size-4" />
         </SidebarMenuButton>
