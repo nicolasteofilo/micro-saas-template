@@ -3,5 +3,5 @@ export default function Home() {
     <div>
       <h1>Hello Micro-sass</h1>
     </div>
-  );
+  )
 }

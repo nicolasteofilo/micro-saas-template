@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { SignIn } from "@/lib/auth-action";
-import { RiGoogleFill } from "@remixicon/react";
+import { Button } from '@/components/ui/button'
+import { SignIn } from '@/lib/auth-action'
+import { RiGoogleFill } from '@remixicon/react'
 
 export function AuthForm() {
   return (
@@ -10,7 +10,7 @@ export function AuthForm() {
       <Button
         type="submit"
         onClick={() => {
-          SignIn();
+          SignIn()
         }}
         className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/90"
       >
@@ -20,5 +20,5 @@ export function AuthForm() {
         Login with Google
       </Button>
     </div>
-  );
+  )
 }

@@ -1,32 +1,32 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { LoadingSpinner } from "@/components/ui/spinner";
-import { toast } from "@/hooks/use-toast";
-import { SignIn } from "@/lib/auth-action";
-import { RiGoogleFill } from "@remixicon/react";
-import { useState } from "react";
+} from '@/components/ui/card'
+import { LoadingSpinner } from '@/components/ui/spinner'
+import { toast } from '@/hooks/use-toast'
+import { SignIn } from '@/lib/auth-action'
+import { RiGoogleFill } from '@remixicon/react'
+import { useState } from 'react'
 
 export default function AuthPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   async function signInWithGoogle() {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await SignIn();
+      await SignIn()
     } catch {
       toast({
-        title: "Erro ao entrar, tente novamente!",
-        variant: "destructive",
-      });
+        title: 'Erro ao entrar, tente novamente!',
+        variant: 'destructive',
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -42,7 +42,11 @@ export default function AuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={signInWithGoogle}
+          >
             {isLoading ? (
               <LoadingSpinner />
             ) : (
@@ -59,5 +63,5 @@ export default function AuthPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
