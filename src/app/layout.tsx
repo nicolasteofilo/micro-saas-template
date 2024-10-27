@@ -1,6 +1,11 @@
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,8 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>
-        {children}
+      <body className={inter.className}>
+        <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
     </html>
