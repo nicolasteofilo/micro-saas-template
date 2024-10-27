@@ -17,7 +17,7 @@ interface UserDropdownProps {
   data: {
     navMain: {
       title: string
-      action?: () => Promise<never>
+      action?: (() => Promise<never>) | (() => void)
       icon: React.ReactNode
     }[]
   }

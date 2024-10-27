@@ -19,10 +19,9 @@ import {
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
 } from '@/components/ui/breadcrumb'
-import { Home, LogOut, Settings } from 'lucide-react'
+import { Home, LogOut, Rocket, Settings } from 'lucide-react'
 import { PropsWithChildren } from 'react'
 import { getInitials } from './utils/get-initials'
 
@@ -48,8 +47,13 @@ const data = {
   ],
 }
 
-const dataDropdown = {
+const dataUserDropdown = {
   navMain: [
+    {
+      title: 'Upgrade de plano',
+      action: () => {},
+      icon: (<Rocket size={16} />) as React.ReactNode,
+    },
     {
       title: 'Sair',
       action: SignOut,
@@ -69,6 +73,10 @@ export default function Layout({ children }: PropsWithChildren) {
   const currentPageName = data.navMain.filter(
     (item) => item.url === pathname,
   )[0].title
+
+  const currentPageLink = data.navMain.filter(
+    (item) => item.url === pathname,
+  )[0].url
 
   return (
     <SidebarProvider
@@ -113,23 +121,27 @@ export default function Layout({ children }: PropsWithChildren) {
             userName={userName}
             userEmail={userEmail}
             initials={initials}
-            data={dataDropdown}
+            data={dataUserDropdown}
           />
         </SidebarFooter>
       </Sidebar>
 
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="-mr-2.5 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/app">{currentPageName}</BreadcrumbLink>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+          <div className="flex items-center gap-2 px-4 justify-between w-full">
+            <div className="flex items-center">
+              <SidebarTrigger className="-ml-1 mr-3" />
+              <Separator orientation="vertical" className="-mr-2.5 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <Link href={currentPageLink}>{currentPageName}</Link>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+
+            <div>Actions</div>
           </div>
         </header>
         <div className="flex flex-1 flex-col pl-[18px]">{children}</div>
