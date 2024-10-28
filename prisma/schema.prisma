@@ -79,11 +79,11 @@ model Authenticator {
 
 model Todo {
   title String
-  id    String  @id @default(cuid())
-  done  Boolean @default(false)
+  id    String @id @default(cuid())
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  doneAt    DateTime?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String

@@ -12,9 +12,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { format } from 'date-fns'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 
+import { ITodo } from '@/app/entities/todo'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -35,24 +37,16 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
-export type ITodo = {
-  id: string
-  title: string
-  createdAt: Date
-  updatedAt: Date
-  finishedAt?: Date
-}
-
 export const columns: ColumnDef<ITodo>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const finishedAt = row.getValue('finishedAt') as Date | undefined
+      const doneAt = row.getValue('doneAt') as Date | undefined
 
       return (
         <div className="flex w-fit items-center">
-          {finishedAt ? (
+          {doneAt ? (
             <div className="rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-600">
               Concluído
             </div>
@@ -95,11 +89,11 @@ export const columns: ColumnDef<ITodo>[] = [
     },
     cell: ({ row }) => {
       const date = row.getValue('createdAt') as Date
-      return <div>{date.toLocaleDateString('pt-BR')}</div>
+      return <div>{format(date, 'dd/MM/yyyy HH:mm')}</div>
     },
   },
   {
-    accessorKey: 'finishedAt',
+    accessorKey: 'doneAt',
     header: ({ column }) => {
       return (
         <Button
@@ -112,8 +106,8 @@ export const columns: ColumnDef<ITodo>[] = [
       )
     },
     cell: ({ row }) => {
-      const date = row.getValue('finishedAt') as Date | undefined
-      return date ? <div>{date.toLocaleDateString('pt-BR')}</div> : <div>-</div>
+      const date = row.getValue('doneAt') as Date | undefined
+      return date ? <div>{format(date, 'dd/MM/yyyy HH:mm')}</div> : <div>-</div>
     },
   },
   {
@@ -121,7 +115,7 @@ export const columns: ColumnDef<ITodo>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const todo = row.original
-      const isFinished = Boolean(todo.finishedAt)
+      const isFinished = Boolean(todo.doneAt)
 
       return (
         <DropdownMenu>

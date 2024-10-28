@@ -23,63 +23,92 @@ import {
 } from '@/components/ui/sheet'
 import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { addTodoSchema } from '../schemas/add-todo'
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: 'Título é obrigatório',
-  }),
-})
+import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
+import { useRef } from 'react'
+import { addOrUpdateTodo } from '../actions'
 
 export function AddTodoSheet() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-    },
+  const { toast } = useToast()
+  const router = useRouter()
+
+  const ref = useRef<HTMLDivElement>(null)
+
+  const hookForm = useForm<z.infer<typeof addTodoSchema>>({
+    resolver: zodResolver(addTodoSchema),
   })
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log(data)
+  const handleSubmit = hookForm.handleSubmit(async (data) => {
+    try {
+      await addOrUpdateTodo({
+        title: data.title,
+        doneAt: new Date(),
+      })
+      toast({
+        title: 'Tarefa adicionada',
+        description: 'Tarefa adicionada com sucesso',
+      })
+      router.refresh()
+      ref.current?.click()
+    } catch (error) {
+      toast({
+        title: 'Erro ao adicionar tarefa',
+        description: 'Ocorreu um erro ao adicionar a tarefa',
+        variant: 'destructive',
+      })
+    }
   })
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button className="w-12 h-12 mt-10">
-          <PlusIcon className="w-4 h-4 text-secondary" />
-        </Button>
-      </SheetTrigger>
-
-      <SheetContent side="right">
-        <SheetHeader className="mb-3">
-          <SheetTitle>Adicionar tarefa</SheetTitle>
-          <SheetDescription>
-            Adicione uma nova tarefa para gerenciar. 🚀
-          </SheetDescription>
-        </SheetHeader>
-
-        <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Adicione um título" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" onClick={handleSubmit}>
-              Adicionar
+    <div>
+      <Sheet>
+        <SheetTrigger asChild>
+          <div ref={ref}>
+            <Button className="w-12 h-12 mt-10">
+              <PlusIcon className="w-4 h-4 text-secondary" />
             </Button>
-          </form>
-        </Form>
-      </SheetContent>
-    </Sheet>
+          </div>
+        </SheetTrigger>
+
+        <SheetContent side="right">
+          <SheetHeader className="mb-3">
+            <SheetTitle>Adicionar tarefa</SheetTitle>
+            <SheetDescription>
+              Adicione uma nova tarefa para gerenciar. 🚀
+            </SheetDescription>
+          </SheetHeader>
+
+          <SheetContent>
+            <Form {...hookForm}>
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <FormField
+                  {...hookForm.register('title')}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Título</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Adicione um título"
+                          {...field}
+                          value={undefined}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" onClick={handleSubmit}>
+                  Adicionar
+                </Button>
+              </form>
+            </Form>
+          </SheetContent>
+        </SheetContent>
+      </Sheet>
+    </div>
   )
 }
