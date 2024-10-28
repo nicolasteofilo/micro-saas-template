@@ -39,3 +39,36 @@ export async function addOrUpdateTodo(data: AddTodoSchema) {
 
   return todo
 }
+
+export async function deleteTodo(id: string) {
+  const session = await auth()
+
+  const todo = await prisma.todo.findUnique({
+    where: { id, userId: String(session?.user?.id!) },
+  })
+
+  if (!todo) {
+    throw new Error('Todo not found')
+  }
+
+  await prisma.todo.delete({
+    where: { id: todo.id },
+  })
+}
+
+export async function toggleTodo(id: string) {
+  const session = await auth()
+
+  const todo = await prisma.todo.findUnique({
+    where: { id, userId: String(session?.user?.id!) },
+  })
+
+  if (!todo) {
+    throw new Error('Todo not found')
+  }
+
+  await prisma.todo.update({
+    where: { id, userId: String(session?.user?.id!) },
+    data: { doneAt: todo?.doneAt === null ? new Date() : null },
+  })
+}

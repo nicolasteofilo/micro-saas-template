@@ -36,113 +36,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { deleteTodo, toggleTodo } from '../actions'
 
-export const columns: ColumnDef<ITodo>[] = [
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => {
-      const doneAt = row.getValue('doneAt') as Date | undefined
-
-      return (
-        <div className="flex w-fit items-center">
-          {doneAt ? (
-            <div className="rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-600">
-              Concluído
-            </div>
-          ) : (
-            <div className="rounded-full bg-yellow-500/20 px-2 py-1 text-xs font-medium text-yellow-600">
-              Pendente
-            </div>
-          )}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'title',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="link"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Título
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div>{row.getValue('title')}</div>,
-  },
-  {
-    accessorKey: 'createdAt',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="link"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Criado em
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const date = row.getValue('createdAt') as Date
-      return <div>{format(date, 'dd/MM/yyyy HH:mm')}</div>
-    },
-  },
-  {
-    accessorKey: 'doneAt',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="link"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Concluído em
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const date = row.getValue('doneAt') as Date | undefined
-      return date ? <div>{format(date, 'dd/MM/yyyy HH:mm')}</div> : <div>-</div>
-    },
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const todo = row.original
-      const isFinished = Boolean(todo.doneAt)
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(todo.id)}
-            >
-              Copiar ID da tarefa
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              {isFinished ? 'Marcar como pendente' : 'Marcar como concluído'}
-            </DropdownMenuItem>
-            <DropdownMenuItem>Excluir</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
+import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
 
 interface TodosTableProps {
   data: ITodo[]
@@ -154,6 +51,142 @@ export function TodosTable({ data, className }: TodosTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+
+  const router = useRouter()
+  const { toast } = useToast()
+
+  async function handleToggleTodo(id: string) {
+    toggleTodo(id)
+    router.refresh()
+
+    toast({
+      title: 'Tarefa atualizada',
+      description: 'Tarefa atualizada com sucesso',
+    })
+  }
+
+  async function handleDeleteTodo(id: string) {
+    deleteTodo(id)
+    router.refresh()
+
+    toast({
+      title: 'Tarefa excluída',
+      description: 'Tarefa excluída com sucesso',
+    })
+  }
+
+  const columns: ColumnDef<ITodo>[] = [
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const doneAt = row.getValue('doneAt') as Date | undefined
+
+        return (
+          <div className="flex w-fit items-center">
+            {doneAt ? (
+              <div className="rounded-full bg-green-500/20 px-2 py-1 text-xs font-medium text-green-600">
+                Concluído
+              </div>
+            ) : (
+              <div className="rounded-full bg-yellow-500/20 px-2 py-1 text-xs font-medium text-yellow-600">
+                Pendente
+              </div>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'title',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="link"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Título
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="link"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Criado em
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const date = row.getValue('createdAt') as Date
+        return <div>{format(date, 'dd/MM/yyyy HH:mm')}</div>
+      },
+    },
+    {
+      accessorKey: 'doneAt',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="link"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Concluído em
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const date = row.getValue('doneAt') as Date | undefined
+        return date ? (
+          <div>{format(date, 'dd/MM/yyyy HH:mm')}</div>
+        ) : (
+          <div>-</div>
+        )
+      },
+    },
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        const todo = row.original
+        const isFinished = Boolean(todo.doneAt)
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menu de ações</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Ações</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(todo.id)}
+              >
+                Copiar ID da tarefa
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleToggleTodo(todo.id)}>
+                {isFinished ? 'Marcar como pendente' : 'Marcar como concluído'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDeleteTodo(todo.id)}>
+                Excluir tarefa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    },
+  ]
 
   const table = useReactTable({
     data,
