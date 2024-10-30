@@ -4,7 +4,7 @@ import { PropsWithChildren } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Home, LogOut, Rocket, Settings } from 'lucide-react'
+import { ChevronRight, Home, LogOut, Rocket, Settings2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 
 import { Separator } from '@/components/ui/separator'
@@ -17,6 +17,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
 } from '@/components/ui/sidebar'
 
@@ -24,6 +27,11 @@ import { UserDropdown } from './_components/user-dropdown'
 import { getInitials } from './_utils/get-initials'
 
 import { Logo } from '@/components/logo'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { SignOut } from '@/lib/auth-action'
 import { cn } from '@/lib/utils'
 
@@ -37,7 +45,23 @@ const data = {
     {
       title: 'Configurações',
       url: '/app/settings',
-      icon: Settings,
+      icon: Settings2,
+      items: [
+        {
+          title: 'Perfil',
+          url: '/app/settings',
+        },
+        {
+          title: 'Planos',
+          url: '/app/settings/plans',
+          icon: Rocket,
+        },
+        {
+          title: 'Aparência',
+          url: '/app/settings/appearance',
+          icon: Link,
+        },
+      ],
     },
   ],
 }
@@ -80,22 +104,67 @@ export default function Layout({ children }: PropsWithChildren) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarMenu className="mt-3">
-              {data.navMain.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={cn(
-                    'hover:bg-secondary rounded-md',
-                    pathname === item.url && 'bg-secondary',
-                  )}
-                >
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url} className="text-base">
-                      <item.icon />
-                      <span className="text-base">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {data.navMain.map((item) => {
+                const asSubMenus = !!item.items
+
+                if (asSubMenus) {
+                  return (
+                    <Collapsible
+                      key={item.title}
+                      asChild
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton tooltip={item.title}>
+                            {item.icon && <item.icon />}
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.items?.map((subItem) => (
+                              <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild>
+                                  <Link href={subItem.url}>
+                                    <span
+                                      className={cn(
+                                        'text-sm',
+                                        pathname === subItem.url &&
+                                          'font-semibold',
+                                      )}
+                                    >
+                                      {subItem.title}
+                                    </span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  )
+                }
+
+                return (
+                  <SidebarMenuItem
+                    key={item.title}
+                    className={cn(
+                      'hover:bg-secondary rounded-md',
+                      pathname === item.url && 'bg-secondary',
+                    )}
+                  >
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url} className="text-sm">
+                        <item.icon />
+                        <span className="text-sm">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>

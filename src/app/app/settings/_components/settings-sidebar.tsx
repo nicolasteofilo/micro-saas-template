@@ -20,7 +20,11 @@ export function SettingsSidebar() {
         >
           Perfil
         </AppSidebarNavLink>
-        <AppSidebarNavLink href="/app/settings/theme" className="mb-2">
+        <AppSidebarNavLink
+          href="/app/settings/theme"
+          className="mb-2"
+          active={pathname === '/app/settings/theme'}
+        >
           Tema
         </AppSidebarNavLink>
         <AppSidebarNavLink

@@ -25,6 +25,7 @@ import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { addTodoSchema } from '../schemas/add-todo'
 
+import { Spinner } from '@/components/ui/spinner'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
@@ -36,11 +37,11 @@ export function AddTodoSheet() {
 
   const ref = useRef<HTMLDivElement>(null)
 
-  const hookForm = useForm<z.infer<typeof addTodoSchema>>({
+  const form = useForm<z.infer<typeof addTodoSchema>>({
     resolver: zodResolver(addTodoSchema),
   })
 
-  const handleSubmit = hookForm.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async (data) => {
     try {
       await addOrUpdateTodo({
         title: data.title,
@@ -66,8 +67,8 @@ export function AddTodoSheet() {
       <Sheet>
         <SheetTrigger asChild>
           <div ref={ref}>
-            <Button className="w-12 h-12 mt-10">
-              <PlusIcon className="w-4 h-4 text-secondary" />
+            <Button className="w-12 h-12 mt-10" variant="outline">
+              <PlusIcon className="w-4 h-4 text-current" />
             </Button>
           </div>
         </SheetTrigger>
@@ -81,10 +82,10 @@ export function AddTodoSheet() {
           </SheetHeader>
 
           <SheetContent>
-            <Form {...hookForm}>
+            <Form {...form}>
               <form onSubmit={handleSubmit} className="space-y-8">
                 <FormField
-                  {...hookForm.register('title')}
+                  {...form.register('title')}
                   name="title"
                   render={({ field }) => (
                     <FormItem>
@@ -101,8 +102,17 @@ export function AddTodoSheet() {
                   )}
                 />
 
-                <Button type="submit" onClick={handleSubmit}>
-                  Adicionar
+                <Button
+                  type="submit"
+                  onClick={handleSubmit}
+                  isLoading={form.formState.isSubmitting}
+                  className="w-23 flex justify-center items-center"
+                >
+                  {form.formState.isSubmitting ? (
+                    <Spinner className="w-4 h-4" />
+                  ) : (
+                    'Adicionar'
+                  )}
                 </Button>
               </form>
             </Form>
