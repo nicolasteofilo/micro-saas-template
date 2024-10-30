@@ -10,10 +10,17 @@ import {
 } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
+import { getUserQuota } from '@/services/stripe'
 import { Check, Rocket } from 'lucide-react'
+import { auth } from '../../../../../../auth'
 import { createSubscribeSession } from '../actions'
 
-export function PlansCard() {
+export async function PlansCard() {
+  const session = await auth()
+
+  const { plan, usagePercentage, currentTasks, availableTasks } =
+    await getUserQuota(session?.user.id as string)
+
   return (
     <>
       <Card className="w-full max-w-2xl">
@@ -21,8 +28,7 @@ export function PlansCard() {
           <CardTitle>Planos e Uso</CardTitle>
 
           <CardDescription>
-            Você está atualmente no plano <Badge>gratuito</Badge>.
-            <span>{''}</span> Ciclo de cobrança atual: 29 de out. - 28 de nov.
+            Você está atualmente no plano <Badge>{plan.name}</Badge>
           </CardDescription>
         </CardHeader>
 
@@ -41,10 +47,12 @@ export function PlansCard() {
             </CardHeader>
             <CardContent className="flex items-center justify-between">
               <div className="flex flex-col items-start">
-                <span className="text-2xl font-bold">1/5</span>
+                <span className="text-2xl font-bold">
+                  {currentTasks}/{availableTasks}
+                </span>
                 <span className="text-sm text-muted-foreground">Tarefas</span>
               </div>
-              <Progress className="w-full ml-4" value={20} />
+              <Progress className="w-full ml-4" value={usagePercentage} />
             </CardContent>
           </Card>
         </CardContent>

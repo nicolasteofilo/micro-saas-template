@@ -1,8 +1,19 @@
 'use server'
 
+import { prisma } from '@/services/database'
 import { createCheckoutSession } from '@/services/stripe'
 import { redirect } from 'next/navigation'
 import { auth } from '../../../../../auth'
+
+export const countUserTasks = async (userId: string) => {
+  const taskCount = await prisma.todo.count({
+    where: {
+      userId,
+    },
+  })
+
+  return taskCount
+}
 
 export const createSubscribeSession = async () => {
   const session = await auth()

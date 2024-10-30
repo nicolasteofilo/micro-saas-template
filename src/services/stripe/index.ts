@@ -98,3 +98,94 @@ export const createCheckoutSession = async (
     throw new Error('Error to create checkout session')
   }
 }
+
+export const handleProcessWebhookUpdatedSubscription = async (event: {
+  object: Stripe.Subscription
+}) => {
+  const stripeCustomerId = event.object.customer as string
+  const stripeSubscriptionId = event.object.id as string
+  const stripeSubscriptionStatus = event.object.status
+  const stripePriceId = event.object.items.data[0].price.id
+
+  const userExists = await prisma.user.findFirst({
+    where: {
+      OR: [
+        {
+          stripeSubscriptionId,
+        },
+        {
+          stripeCustomerId,
+        },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (!userExists) {
+    throw new Error('User of stripeCustomerId not found')
+  }
+
+  await prisma.user.update({
+    where: {
+      id: userExists.id,
+    },
+    data: {
+      stripeCustomerId,
+      stripeSubscriptionId,
+      stripeSubscriptionStatus,
+      stripePriceId,
+    },
+  })
+}
+
+export const getPlanByStripePriceId = (stripePriceId: string) => {
+  const plans = config.stripe.plans
+
+  const plan = Object.values(plans).find(
+    (plan) => plan.stripePriceId === stripePriceId,
+  )
+
+  if (!plan) {
+    throw new Error('Plan not found for the given Stripe Price ID')
+  }
+
+  return plan
+}
+
+export const getQuotaOfPlanByStripePriceId = (stripePriceId: string) => {
+  const plan = getPlanByStripePriceId(stripePriceId)
+  return plan?.quota
+}
+
+export const getUserQuota = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      stripePriceId: true,
+    },
+  })
+
+  if (!user || !user.stripePriceId) {
+    throw new Error('User not found or stripePriceId not found')
+  }
+
+  const plan = getPlanByStripePriceId(user.stripePriceId)
+  const taskCount = await prisma.todo.count({
+    where: {
+      userId,
+    },
+  })
+
+  const availableTasks = plan.quota.tasks
+  const currentTasks = taskCount
+  const usagePercentage = (currentTasks / availableTasks) * 100
+
+  return {
+    availableTasks,
+    currentTasks,
+    usagePercentage,
+    plan,
+  }
+}

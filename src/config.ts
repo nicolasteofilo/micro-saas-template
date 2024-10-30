@@ -6,12 +6,14 @@ export const config = {
     plans: {
       free: {
         stripePriceId: process.env.STRIPE_FREE_PRICE_ID,
+        name: 'Free',
         quota: {
           tasks: 5,
         },
       },
       plus: {
         stripePriceId: process.env.STRIPE_PLUS_PRICE_ID,
+        name: 'Plus',
         quota: {
           tasks: -1,
         },
