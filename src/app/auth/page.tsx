@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/ui/spinner'
+import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/hooks/use-toast'
 import { SignIn } from '@/lib/auth-action'
 import { RiGoogleFill } from '@remixicon/react'
@@ -48,7 +48,7 @@ export default function AuthPage() {
             onClick={signInWithGoogle}
           >
             {isLoading ? (
-              <LoadingSpinner />
+              <Spinner />
             ) : (
               <>
                 <RiGoogleFill

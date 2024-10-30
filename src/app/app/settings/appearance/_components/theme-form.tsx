@@ -1,9 +1,5 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,7 +11,10 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTheme } from 'next-themes'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const appearanceFormSchema = z.object({
   theme: z.enum(['light', 'dark'], {
@@ -25,7 +24,7 @@ const appearanceFormSchema = z.object({
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
-export default function ThemeForm() {
+export function ThemeForm() {
   const { setTheme, theme } = useTheme()
 
   const defaultValues: Partial<AppearanceFormValues> = {

@@ -6,7 +6,7 @@ export default async function Settings() {
   const user = session?.user
 
   return (
-    <div>
+    <div className="flex justify-center">
       <ProfileForm user={user} />
     </div>
   )

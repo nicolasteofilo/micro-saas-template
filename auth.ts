@@ -1,4 +1,5 @@
 import { prisma } from '@/services/database'
+import { createStripeCustomer } from '@/services/stripe'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
@@ -22,4 +23,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
   adapter: PrismaAdapter(prisma),
+  events: {
+    createUser: async ({ user }) => {
+      await createStripeCustomer({
+        email: user.email!,
+        name: user.name!,
+      })
+    },
+  },
 })
